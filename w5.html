@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Skills Disambiguator | Yzerly</title>
+<style>
+  :root{--ink:#16181d;--ink2:#3a3f47;--muted:#6b7280;--line:#e6e8ec;--card:#fff;--acc:#0d9488;--acc-bg:#e9f7f5;--warn:#c2410c;}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:transparent;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+  .card{max-width:640px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 26px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);font-weight:800}
+  h2{font-size:22px;letter-spacing:-.01em;margin:6px 0 4px;line-height:1.2}
+  .sub{color:var(--ink2);font-size:14.5px;margin:0 0 16px}
+  label.f{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
+  select{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 13px;font-size:16px;color:var(--ink);background:#fff}
+  .reveal{display:none;margin-top:18px}
+  .count{background:var(--acc-bg);border:1px solid #bfe6df;border-radius:11px;padding:14px 16px;font-size:15px;color:var(--ink);margin-bottom:12px}
+  .count b{color:var(--acc)}
+  .sublist{margin:0;padding:0;list-style:none}
+  .sublist li{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;font-size:14.5px;color:var(--ink2);transition:.12s}
+  .sublist li:hover{border-color:#9cd8cf}
+  .sublist li.sel{border-color:var(--acc);background:#f4fbfa;color:var(--ink);font-weight:600}
+  .sublist .dot{width:16px;height:16px;border-radius:5px;border:2px solid #cbd0d6;flex:none;margin-top:2px}
+  .sublist li.sel .dot{border-color:var(--acc);background:var(--acc)}
+  .verdict{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:12px;font-size:14.5px;color:var(--ink2);background:#fbfbfc;display:none}
+  .verdict b{color:var(--ink)}
+  .cta{background:#16181d;color:#fff;border-radius:13px;padding:20px;margin-top:16px;display:none}
+  .cta h3{margin:0 0 6px;font-size:17px}
+  .cta p{margin:0 0 13px;font-size:14px;color:#d7dae0}
+  .cta a{display:inline-block;background:var(--acc);color:#fff;text-decoration:none;font-weight:700;font-size:14.5px;padding:11px 18px;border-radius:9px}
+  .brand{margin-top:16px;text-align:center;font-size:12px;color:var(--muted)}
+  .brand b{color:var(--acc)}
+  .lead{display:grid;gap:8px;margin-top:6px}
+  .lead input{width:100%;border:1px solid #3a3f47;background:#0f1114;color:#fff;border-radius:8px;padding:10px 12px;font-size:14px}
+  .lead input::placeholder{color:#8b929c}
+  .lead button{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:11px;font-weight:700;font-size:14.5px;cursor:pointer}
+  .leaddone{display:none;font-size:14.5px;color:#d7dae0;margin-top:10px}
+  .leaddone a{color:#fff;font-weight:700}
+  .hp{position:absolute!important;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+  .leaderr{display:none;font-size:13px;font-weight:600;color:#fff;background:#dc2626;border-radius:7px;padding:7px 11px;margin-top:8px}
+  .phonewrap{display:flex;gap:8px}
+  .phonewrap .lsel{flex:0 0 auto;max-width:46%;background:#0f1114;color:#fff;border:1px solid #3a3f47;border-radius:8px;padding:10px 8px;font-size:14px}
+  .phonewrap input{flex:1;min-width:0}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="eyebrow">Yzerly · skills disambiguator</div>
+  <h2>What are you actually trying to train?</h2>
+  <p class="sub">Pick the skill you're under pressure to build. We'll unpack the distinct capabilities hiding inside that one word, so you can name the one you actually mean.</p>
+
+  <label class="f" for="skill">The skill everyone keeps asking for</label>
+  <select id="skill">
+    <option value="">Choose a skill...</option>
+    <option value="communication">Communication</option>
+    <option value="leadership">Leadership</option>
+    <option value="ownership">Ownership / Accountability</option>
+    <option value="collaboration">Collaboration</option>
+    <option value="influence">Influence / Stakeholder management</option>
+    <option value="executive">Executive presence</option>
+    <option value="problemsolving">Problem-solving</option>
+  </select>
+
+  <div class="reveal" id="reveal">
+    <div class="count" id="count"></div>
+    <ul class="sublist" id="sublist"></ul>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="cta" id="cta">
+    <h3>Turn the word into a trainable behaviour</h3>
+    <p>We'll send the one-page method Yzerly uses to convert a suitcase word into two or three observable behaviours you can design a programme around and actually measure. No pitch until you've seen it work on your skill.</p>
+    <form id="leadForm" class="lead">
+        <input name="lname" placeholder="Name" required>
+        <input name="lemail" type="email" placeholder="Work email" required>
+        <input name="lcompany" placeholder="Company" required>
+        <div class="phonewrap">
+          <select name="lcountry" id="lcountry" class="lsel" aria-label="Country"></select>
+          <input name="lphone" type="tel" inputmode="numeric" placeholder="Mobile number" required>
+        </div>
+        <input name="fax" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button type="submit">Get the disambiguation method</button>
+      </form>
+      <div class="leaderr" id="leadErr"></div>
+      <div class="leaddone" id="leadDone">Thanks. Your resource is ready: <a id="leadLink" target="_blank" rel="noopener">Open it &rarr;</a></div>
+  </div>
+
+  <div class="brand">Built by <b>Yzerly</b> · Diagnose · Design · Deliver &amp; Prove</div>
+</div>
+
+<script>
+// -- Lead capture config (this widget) --
+const LEAD_SOURCE   = "blog-05-skills-naming";
+const LEAD_CAMPAIGN = "Blog 05: Skills Disambiguator";
+const LEAD_RES      = "https://mtharani-1203.github.io/yzerly-widgets/r5.html";
+const VX_URL = "https://sfastgwebform.api.vettrix.com/webform/record/create/lead";
+const VX_KEY = "AjV16hK6BevBTTARDtLu5HexIbPmGgg/bTFVkE1JcyJEXdPvIjBODOu+YZy4sANi63qs28TY";
+
+const MAP = {
+  communication:["Listening under pressure without getting defensive","Structuring a message so a busy executive can act on it","Giving direct, specific feedback that changes behaviour","Running a room and keeping a discussion on track","Writing so the reader knows exactly what to do next"],
+  leadership:["Setting a direction people can actually repeat back","Holding someone accountable without damaging the relationship","Making a decision with incomplete information","Coaching rather than doing the work yourself","Handling a team member's underperformance early"],
+  ownership:["Escalating a risk before it becomes a crisis","Following through without being chased","Owning a mistake and the fix, not just the apology","Making a call inside your remit instead of deferring up","Closing the loop with the people who are waiting on you"],
+  collaboration:["Disagreeing productively without it becoming personal","Sharing context others need before they ask","Negotiating priorities across two teams","Running a handoff so nothing gets dropped","Surfacing a conflict early instead of working around it"],
+  influence:["Reading what a stakeholder actually cares about","Building a case in the other person's language, not yours","Handling objections without getting defensive","Getting a decision from someone with no authority over them","Following up so a soft yes becomes a real commitment"],
+  executive:["Summarising complexity into three sentences","Staying composed under challenge in a senior room","Answering the question actually asked, briefly","Signalling calm command without arrogance","Knowing what to leave out"],
+  problemsolving:["Defining the real problem before solutioning","Separating symptoms from root cause","Framing options with trade-offs, not just a recommendation","Knowing when you have enough information to decide","Pressure-testing your own assumptions"]
+};
+const NAMES = {communication:"Communication",leadership:"Leadership",ownership:"Ownership / Accountability",collaboration:"Collaboration",influence:"Influence / Stakeholder management",executive:"Executive presence",problemsolving:"Problem-solving"};
+const sel = document.getElementById('skill');
+const chosen = new Set();
+
+sel.addEventListener('change', ()=>{
+  const k = sel.value;
+  chosen.clear();
+  const rev = document.getElementById('reveal');
+  const cta = document.getElementById('cta');
+  const verdict = document.getElementById('verdict');
+  verdict.style.display='none';
+  if(!k){ rev.style.display='none'; cta.style.display='none'; return; }
+  const subs = MAP[k];
+  document.getElementById('count').innerHTML = `The word "<b>${NAMES[k]}</b>" is hiding <b>${subs.length} distinct, trainable capabilities</b>. A programme aimed at "${NAMES[k]}" is aimed at all of them, which means none of them. Which are you actually trying to move?`;
+  const ul = document.getElementById('sublist');
+  ul.innerHTML = subs.map((s,i)=>`<li data-i="${i}"><span class="dot"></span><span>${s}</span></li>`).join('');
+  rev.style.display='block';
+  cta.style.display='block';
+});
+
+document.getElementById('sublist').addEventListener('click', e=>{
+  const li = e.target.closest('li'); if(!li) return;
+  const i = li.dataset.i;
+  if(chosen.has(i)){ chosen.delete(i); li.classList.remove('sel'); }
+  else { chosen.add(i); li.classList.add('sel'); }
+  const v = document.getElementById('verdict');
+  if(chosen.size===0){ v.style.display='none'; return; }
+  v.style.display='block';
+  if(chosen.size===1){
+    v.innerHTML = `Good. <b>That</b> is a training brief. It is observable, so it is teachable, measurable, and provable. The other capabilities are real too, but they are different programmes with different measures. Naming the one is the whole point.`;
+  } else {
+    v.innerHTML = `You picked <b>${chosen.size}</b>. That is honest, most teams need more than one. But sequence them: a single programme that tries to move all ${chosen.size} at once usually moves none. Which one, if it improved first, would matter most this quarter?`;
+  }
+});
+// -- Lead form -> Vettrix + instant resource --
+var COUNTRIES = {
+  IN:{name:'India',dial:'91',min:10,max:10},
+  US:{name:'United States',dial:'1',min:10,max:10},
+  CA:{name:'Canada',dial:'1',min:10,max:10},
+  GB:{name:'United Kingdom',dial:'44',min:9,max:10},
+  AE:{name:'UAE',dial:'971',min:8,max:9},
+  SG:{name:'Singapore',dial:'65',min:8,max:8},
+  AU:{name:'Australia',dial:'61',min:9,max:9},
+  SA:{name:'Saudi Arabia',dial:'966',min:9,max:9},
+  QA:{name:'Qatar',dial:'974',min:8,max:8},
+  DE:{name:'Germany',dial:'49',min:10,max:11},
+  FR:{name:'France',dial:'33',min:9,max:9},
+  NL:{name:'Netherlands',dial:'31',min:9,max:9},
+  ZA:{name:'South Africa',dial:'27',min:9,max:9},
+  OTHER:{name:'Other',dial:'',min:6,max:15}
+};
+(function(){
+  var sel = document.getElementById('lcountry');
+  if(!sel) return;
+  for(var k in COUNTRIES){
+    var c = COUNTRIES[k];
+    var o = document.createElement('option');
+    o.value = k;
+    o.textContent = c.dial ? (c.name + ' (+' + c.dial + ')') : c.name;
+    if(k === 'IN') o.selected = true;
+    sel.appendChild(o);
+  }
+})();
+
+document.getElementById('leadForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const f = e.target;
+  const err = document.getElementById('leadErr');
+  const show = function(m){ err.textContent = m; err.style.display = 'block'; };
+  err.style.display = 'none';
+
+  // bot trap: real people never fill this hidden field
+  if(f.fax && f.fax.value.trim() !== ''){ return; }
+
+  const FREE = ['gmail.com','googlemail.com','yahoo.com','yahoo.in','yahoo.co.in','ymail.com','rocketmail.com','rediffmail.com','rediff.com','hotmail.com','hotmail.co.uk','outlook.com','live.com','msn.com','icloud.com','me.com','mac.com','aol.com','protonmail.com','proton.me','zoho.com','zohomail.com','gmx.com','mail.com','yandex.com','inbox.com'];
+
+  const name = f.lname.value.trim();
+  const email = f.lemail.value.trim();
+  const company = f.lcompany.value.trim();
+  const digits = f.lphone.value.replace(/[^0-9]/g,'');
+  const ckey = f.lcountry ? f.lcountry.value : 'IN';
+  const c = COUNTRIES[ckey] || COUNTRIES.OTHER;
+
+  if(name.length < 2 || !/[a-zA-Z]/.test(name)) return show('Please enter your full name.');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return show('Please enter a valid email address.');
+  const domain = email.split('@')[1].toLowerCase();
+  if(FREE.indexOf(domain) !== -1) return show('Please use your work email, not a personal one.');
+  if(company.length < 2) return show('Please enter your company name.');
+  if(digits.length < c.min || digits.length > c.max) return show('Please enter a valid mobile number for ' + c.name + '.');
+  const phone = c.dial ? ('+' + c.dial + digits) : ('+' + digits);
+
+  const body = new URLSearchParams();
+  body.set('webform_key', VX_KEY);
+  body.set('webform_id', '1');
+  body.set('returnURL', 'https://www.yzerly.com/');
+  body.set('currentUrl', LEAD_SOURCE);
+  body.set('leadlast_name', name);
+  body.set('leademail_id', email);
+  body.set('leadcompany_name', company);
+  body.set('lead_phone', phone);
+  body.set('cflead_campaign_name', LEAD_CAMPAIGN);
+  try { fetch(VX_URL, {method:'POST', mode:'no-cors', body}); } catch(err2){}
+  document.getElementById('leadLink').href = LEAD_RES;
+  f.style.display = 'none';
+  document.getElementById('leadDone').style.display = 'block';
+});
+</script>
+</body>
+</html>
