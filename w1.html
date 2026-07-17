@@ -40,10 +40,14 @@
   .cta{background:#16181d;color:#fff;border-radius:13px;padding:20px;margin-top:16px}
   .cta h3{margin:0 0 6px;font-size:17px}
   .cta p{margin:0 0 13px;font-size:14px;color:#d7dae0}
-  .cta a{display:inline-block;background:var(--chro);color:#fff;text-decoration:none;font-weight:700;font-size:14.5px;padding:11px 18px;border-radius:9px}
+  .lead{display:grid;gap:8px;margin-top:6px}
+  .lead input{width:100%;border:1px solid #3a3f47;background:#0f1114;color:#fff;border-radius:8px;padding:10px 12px;font-size:14px}
+  .lead input::placeholder{color:#8b929c}
+  .lead button{background:var(--chro);color:#fff;border:0;border-radius:9px;padding:11px;font-weight:700;font-size:14.5px;cursor:pointer}
+  .leaddone{display:none;font-size:14.5px;color:#d7dae0;margin-top:10px}
+  .leaddone a{color:#fff;font-weight:700}
   details{margin-top:14px;font-size:13px;color:var(--muted)}
   details summary{cursor:pointer;font-weight:600}
-  .disclaimer{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5}
   .brand{margin-top:16px;text-align:center;font-size:12px;color:var(--muted)}
   .brand b{color:var(--chro)}
 </style>
@@ -74,8 +78,15 @@
     <div class="rbox" id="readout"></div>
     <div class="cta">
       <h3 id="ctaTitle">Add three better questions to your next exit interview</h3>
-      <p id="ctaText">We'll send the three questions that surface the real reason someone's leaving, plus how we baseline regretted attrition by manager and prove the drop. No pitch until you've seen your own numbers.</p>
-      <a href="#" id="ctaLink">Get the 3 exit questions →</a>
+      <p id="ctaText">Get the three questions that surface the real reason someone's leaving. Pop your details in and the resource is yours.</p>
+      <form id="leadForm" class="lead">
+        <input name="lname" placeholder="Name" required>
+        <input name="lemail" type="email" placeholder="Work email" required>
+        <input name="lcompany" placeholder="Company" required>
+        <input name="lphone" type="tel" placeholder="Mobile number" required>
+        <button type="submit">Get the 3 exit questions</button>
+      </form>
+      <div class="leaddone" id="leadDone">Thanks. Your resource is ready: <a id="leadLink" target="_blank" rel="noopener">Open it &rarr;</a></div>
     </div>
     <details>
       <summary>How this is calculated</summary>
@@ -88,6 +99,12 @@
 </div>
 
 <script>
+// ── Lead capture config (this widget) ──
+const LEAD_SOURCE = "blog-01-attrition";
+const LEAD_RES    = "https://mtharani-1203.github.io/yzerly-widgets/r1.html";
+const VX_URL = "https://sfastgwebform.api.vettrix.com/webform/record/create/lead";
+const VX_KEY = "AjV16hK6BevBTTARDtLu5HexIbPmGgg/bTFVkE1JcyJEXdPvIjBODOu+YZy4sANi63qs28TY";
+
 const QUESTIONS = [
   {q:"How often do your managers hold real one-on-ones with each team member?",
    opts:[["Weekly",0],["Every couple of weeks",1],["Monthly or so",2],["Rarely, or only status updates",3]]},
@@ -150,27 +167,23 @@ btn.onclick=()=>{
   document.getElementById('pct').textContent = `~${lo} to ${hi}%`;
   document.getElementById('fill').style.width = conv+'%';
 
-  let lab, read, ctaT, ctaP;
+  let lab, read, ctaT;
   if(conv>=65){
     lab="Predominantly conversation-driven.";
     read="Your pattern points strongly at manager conversations, not compensation. Exits likely cluster under specific managers, one-on-ones are thin, and first-time managers were handed teams without being trained for the hard conversations. <b>A pay adjustment here would spend real money on the wrong lever.</b> The fix is narrow: build the specific conversations your managers are avoiding, then measure whether regretted attrition under them falls.";
     ctaT="Before you approve another retention raise, read the manager beneath it";
-    ctaP="We'll send the three exit questions that surface the real driver, plus how Yzerly baselines regretted attrition by manager and proves the drop after we intervene. No pitch until you've seen your own numbers.";
   } else if(conv>=45){
     lab="Mixed, with a real conversation component.";
     read="You likely have both forces at play. Part of your attrition is genuinely market-driven, but a meaningful slice is conversation-driven and invisible in exit data, so a pay-only response would leave money on the table <b>and</b> people walking out. Worth separating the two before you decide where the budget goes.";
     ctaT="Separate the pay exits from the manager exits";
-    ctaP="We'll send the three exit questions that tell the two apart, plus how Yzerly baselines each driver from your data so you fund the one that's actually costing you. No pitch until you've seen your own numbers.";
   } else {
     lab="Pay / market looks like a genuine factor.";
     read="Your managers and feedback loops seem relatively healthy, and your pay sits below market, so compensation may well be a real driver here. Worth confirming with sharper exit questions before committing budget, and checking that the 'healthy manager' read holds up under the numbers rather than the impression.";
     ctaT="Confirm it's really pay before you spend on pay";
-    ctaP="We'll send three exit questions that pressure-test the 'it's the money' answer, so a market adjustment is a decision, not a guess. No pitch until you've seen your own numbers.";
   }
   document.getElementById('verdictLab').textContent = lab;
   document.getElementById('readout').innerHTML = read;
   document.getElementById('ctaTitle').textContent = ctaT;
-  document.getElementById('ctaText').textContent = ctaP;
 
   document.getElementById('quiz').style.display='none';
   document.getElementById('result').style.display='block';
@@ -184,6 +197,25 @@ document.getElementById('restart').onclick=()=>{
   document.getElementById('result').style.display='none';
   document.getElementById('quiz').style.display='block';
 };
+
+// ── Lead form → Vettrix + instant resource ──
+document.getElementById('leadForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const f = e.target;
+  const body = new URLSearchParams();
+  body.set('webform_key', VX_KEY);
+  body.set('webform_id', '1');
+  body.set('returnURL', 'https://www.yzerly.com/');
+  body.set('currentUrl', LEAD_SOURCE);
+  body.set('leadlast_name', f.lname.value);
+  body.set('leademail_id', f.lemail.value);
+  body.set('leadcompany_name', f.lcompany.value);
+  body.set('lead_phone', f.lphone.value);
+  try { fetch(VX_URL, {method:'POST', mode:'no-cors', body}); } catch(err){}
+  document.getElementById('leadLink').href = LEAD_RES;
+  f.style.display = 'none';
+  document.getElementById('leadDone').style.display = 'block';
+});
 </script>
 </body>
 </html>
