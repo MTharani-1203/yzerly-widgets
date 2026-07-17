@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regretted-Attrition Diagnostic | Yzerly</title>
+<style>
+  :root{--ink:#16181d;--ink2:#3a3f47;--muted:#6b7280;--line:#e6e8ec;--card:#fff;--chro:#7c3aed;--chro-bg:#f3eefe;--pay:#c2410c;--pay-bg:#fdf0e8;--ok:#0d9488;}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:transparent;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+  .card{max-width:640px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 26px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--chro);font-weight:800}
+  h2{font-size:23px;letter-spacing:-.01em;margin:6px 0 4px;line-height:1.2}
+  .sub{color:var(--ink2);font-size:14.5px;margin:0 0 6px}
+  .progress{height:5px;background:#eef0f3;border-radius:999px;margin:16px 0 22px;overflow:hidden}
+  .progress > i{display:block;height:100%;width:0;background:var(--chro);border-radius:999px;transition:width .3s}
+  .q{margin-bottom:20px}
+  .q .qnum{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.04em}
+  .q .qtext{font-size:16.5px;font-weight:600;margin:2px 0 11px}
+  .opts{display:grid;gap:8px}
+  .opt{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;font-size:14.5px;color:var(--ink2);transition:.12s;background:#fff}
+  .opt:hover{border-color:#c9b8f2;background:#fcfbff}
+  .opt.sel{border-color:var(--chro);background:var(--chro-bg);color:var(--ink);font-weight:600}
+  .opt .dot{width:16px;height:16px;border-radius:50%;border:2px solid #cbd0d6;flex:none}
+  .opt.sel .dot{border-color:var(--chro);background:var(--chro);box-shadow:inset 0 0 0 3px #fff}
+  .btn{width:100%;border:0;background:var(--chro);color:#fff;font-size:15.5px;font-weight:700;padding:14px;border-radius:11px;cursor:pointer;margin-top:6px;transition:.15s}
+  .btn:disabled{background:#cbd0d6;cursor:not-allowed}
+  .btn.secondary{background:#fff;color:var(--chro);border:1px solid var(--chro);margin-top:10px}
+  .result{display:none}
+  .gauge{margin:6px 0 14px}
+  .gauge .band{position:relative;height:34px;border-radius:999px;background:linear-gradient(90deg,var(--pay-bg) 0%,#fff6ec 35%,#f4effe 65%,var(--chro-bg) 100%);border:1px solid var(--line);overflow:hidden}
+  .gauge .fill{position:absolute;top:0;left:0;height:100%;background:rgba(124,58,237,.16);border-right:3px solid var(--chro)}
+  .gauge .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px}
+  .verdict{font-size:15px;color:var(--ink2)}
+  .verdict .big{font-size:30px;font-weight:800;letter-spacing:-.02em;color:var(--chro);display:block;line-height:1.1;margin-bottom:2px}
+  .verdict .lab{font-weight:700;color:var(--ink)}
+  .rbox{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:16px 0;font-size:14.5px;color:var(--ink2);background:#fbfbfc}
+  .rbox b{color:var(--ink)}
+  .cta{background:#16181d;color:#fff;border-radius:13px;padding:20px;margin-top:16px}
+  .cta h3{margin:0 0 6px;font-size:17px}
+  .cta p{margin:0 0 13px;font-size:14px;color:#d7dae0}
+  .lead{display:grid;gap:8px;margin-top:6px}
+  .lead input{width:100%;border:1px solid #3a3f47;background:#0f1114;color:#fff;border-radius:8px;padding:10px 12px;font-size:14px}
+  .lead input::placeholder{color:#8b929c}
+  .lead button{background:var(--chro);color:#fff;border:0;border-radius:9px;padding:11px;font-weight:700;font-size:14.5px;cursor:pointer}
+  .leaddone{display:none;font-size:14.5px;color:#d7dae0;margin-top:10px}
+  .leaddone a{color:#fff;font-weight:700}
+  details{margin-top:14px;font-size:13px;color:var(--muted)}
+  details summary{cursor:pointer;font-weight:600}
+  .brand{margin-top:16px;text-align:center;font-size:12px;color:var(--muted)}
+  .brand b{color:var(--chro)}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div id="quiz">
+    <div class="eyebrow">Yzerly · 2-minute diagnostic</div>
+    <h2>The Regretted-Attrition Diagnostic</h2>
+    <p class="sub">Your exit interviews say "pay." This gives you an indicative read on how much of your regretted attrition is likely <b>conversation-driven</b> versus <b>pay-driven</b>, from your own answers.</p>
+    <div class="progress"><i id="bar"></i></div>
+    <div id="questions"></div>
+    <button class="btn" id="seeResult" disabled>See my result</button>
+  </div>
+
+  <div id="result" class="result">
+    <div class="eyebrow">Your indicative read</div>
+    <div class="verdict">
+      <span class="big" id="pct"></span>
+      <span id="verdictLab" class="lab"></span>
+      <div id="verdictSub" style="margin-top:2px">of your regretted attrition looks conversation-driven</div>
+    </div>
+    <div class="gauge">
+      <div class="band"><div class="fill" id="fill"></div></div>
+      <div class="ticks"><span>Pay / market driven</span><span>Conversation driven</span></div>
+    </div>
+    <div class="rbox" id="readout"></div>
+    <div class="cta">
+      <h3 id="ctaTitle">Add three better questions to your next exit interview</h3>
+      <p id="ctaText">Get the three questions that surface the real reason someone's leaving. Pop your details in and the resource is yours.</p>
+      <form id="leadForm" class="lead">
+        <input name="lname" placeholder="Name" required>
+        <input name="lemail" type="email" placeholder="Work email" required>
+        <input name="lcompany" placeholder="Company" required>
+        <input name="lphone" type="tel" placeholder="Mobile number" required>
+        <button type="submit">Get the 3 exit questions</button>
+      </form>
+      <div class="leaddone" id="leadDone">Thanks. Your resource is ready: <a id="leadLink" target="_blank" rel="noopener">Open it &rarr;</a></div>
+    </div>
+    <details>
+      <summary>How this is calculated</summary>
+      <p>Five signals (1:1 frequency, exit-reason confidence, first-time-manager training, feedback quality, whether exits cluster under specific managers) are scored toward a conversation-driven signal. Your pay-vs-market answer then shifts the estimate toward or away from a genuine pay driver. This is an indicative self-assessment heuristic to prompt better questions, not a measurement of your actual attrition. Yzerly's engagements baseline the real numbers from your data.</p>
+    </details>
+    <button class="btn secondary" id="restart">Start over</button>
+    <div class="brand">Built by <b>Yzerly</b> · Diagnose · Design · Deliver &amp; Prove</div>
+  </div>
+
+</div>
+
+<script>
+// ── Lead capture config (this widget) ──
+const LEAD_SOURCE   = "blog-01-attrition";
+const LEAD_CAMPAIGN = "Blog 01: Regretted-Attrition Diagnostic";
+const LEAD_RES      = "https://mtharani-1203.github.io/yzerly-widgets/r1.html";
+const VX_URL = "https://sfastgwebform.api.vettrix.com/webform/record/create/lead";
+const VX_KEY = "AjV16hK6BevBTTARDtLu5HexIbPmGgg/bTFVkE1JcyJEXdPvIjBODOu+YZy4sANi63qs28TY";
+
+const QUESTIONS = [
+  {q:"How often do your managers hold real one-on-ones with each team member?",
+   opts:[["Weekly",0],["Every couple of weeks",1],["Monthly or so",2],["Rarely, or only status updates",3]]},
+  {q:"When someone resigns, how confident are you the stated reason is the real reason?",
+   opts:[["Very confident",0],["Somewhat",1],["Not very",2],["We don't really dig for it",3]]},
+  {q:"Are your first-time managers trained in feedback and difficult conversations before they get a team?",
+   opts:[["Yes, structured, before the role",0],["Somewhat or informally",2],["No",3]]},
+  {q:"Honestly, how would your people rate the quality of feedback they get?",
+   opts:[["Consistently strong",0],["Mixed, manager-dependent",2],["Poor or rare",3]]},
+  {q:"Do regretted exits cluster under specific managers?",
+   opts:[["No, fairly evenly spread",0],["We don't track exits by manager",2],["Somewhat",2],["Yes, clearly",3]]},
+  {q:"How does your pay sit against the market for these roles?",
+   opts:[["At or above market",{pay:8}],["Roughly at market",{pay:0}],["Below market",{pay:-20}]],pay:true}
+];
+
+const qEl = document.getElementById('questions');
+const barEl = document.getElementById('bar');
+const btn = document.getElementById('seeResult');
+const answers = new Array(QUESTIONS.length).fill(null);
+
+QUESTIONS.forEach((item,qi)=>{
+  const wrap = document.createElement('div');
+  wrap.className='q';
+  wrap.innerHTML = `<div class="qnum">Q${qi+1} of ${QUESTIONS.length}</div><div class="qtext">${item.q}</div>`;
+  const opts = document.createElement('div');
+  opts.className='opts';
+  item.opts.forEach((o)=>{
+    const b = document.createElement('div');
+    b.className='opt';
+    b.innerHTML = `<span class="dot"></span><span>${o[0]}</span>`;
+    b.onclick=()=>{
+      answers[qi]={val:o[1]};
+      [...opts.children].forEach(c=>c.classList.remove('sel'));
+      b.classList.add('sel');
+      update();
+    };
+    opts.appendChild(b);
+  });
+  wrap.appendChild(opts);
+  qEl.appendChild(wrap);
+});
+
+function update(){
+  const done = answers.filter(Boolean).length;
+  barEl.style.width = (done/QUESTIONS.length*100)+'%';
+  btn.disabled = done < QUESTIONS.length;
+}
+
+btn.onclick=()=>{
+  let signal=0, payAdj=0;
+  answers.forEach(a=>{
+    if(typeof a.val==='number') signal+=a.val;
+    else if(a.val && typeof a.val.pay==='number') payAdj=a.val.pay;
+  });
+  let base = (signal/15)*100;
+  let conv = base + payAdj;
+  conv = Math.max(8, Math.min(92, Math.round(conv)));
+  const lo = Math.max(5, conv-7), hi = Math.min(95, conv+7);
+
+  document.getElementById('pct').textContent = `~${lo} to ${hi}%`;
+  document.getElementById('fill').style.width = conv+'%';
+
+  let lab, read, ctaT;
+  if(conv>=65){
+    lab="Predominantly conversation-driven.";
+    read="Your pattern points strongly at manager conversations, not compensation. Exits likely cluster under specific managers, one-on-ones are thin, and first-time managers were handed teams without being trained for the hard conversations. <b>A pay adjustment here would spend real money on the wrong lever.</b> The fix is narrow: build the specific conversations your managers are avoiding, then measure whether regretted attrition under them falls.";
+    ctaT="Before you approve another retention raise, read the manager beneath it";
+  } else if(conv>=45){
+    lab="Mixed, with a real conversation component.";
+    read="You likely have both forces at play. Part of your attrition is genuinely market-driven, but a meaningful slice is conversation-driven and invisible in exit data, so a pay-only response would leave money on the table <b>and</b> people walking out. Worth separating the two before you decide where the budget goes.";
+    ctaT="Separate the pay exits from the manager exits";
+  } else {
+    lab="Pay / market looks like a genuine factor.";
+    read="Your managers and feedback loops seem relatively healthy, and your pay sits below market, so compensation may well be a real driver here. Worth confirming with sharper exit questions before committing budget, and checking that the 'healthy manager' read holds up under the numbers rather than the impression.";
+    ctaT="Confirm it's really pay before you spend on pay";
+  }
+  document.getElementById('verdictLab').textContent = lab;
+  document.getElementById('readout').innerHTML = read;
+  document.getElementById('ctaTitle').textContent = ctaT;
+
+  document.getElementById('quiz').style.display='none';
+  document.getElementById('result').style.display='block';
+  try{window.scrollTo(0,0);}catch(e){}
+};
+
+document.getElementById('restart').onclick=()=>{
+  answers.fill(null);
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  update();
+  document.getElementById('result').style.display='none';
+  document.getElementById('quiz').style.display='block';
+};
+
+// ── Lead form → Vettrix + instant resource ──
+document.getElementById('leadForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const f = e.target;
+  const body = new URLSearchParams();
+  body.set('webform_key', VX_KEY);
+  body.set('webform_id', '1');
+  body.set('returnURL', 'https://www.yzerly.com/');
+  body.set('currentUrl', LEAD_SOURCE);
+  body.set('leadlast_name', f.lname.value);
+  body.set('leademail_id', f.lemail.value);
+  body.set('leadcompany_name', f.lcompany.value);
+  body.set('lead_phone', f.lphone.value);
+  body.set('cflead_campaign_name', LEAD_CAMPAIGN);
+  try { fetch(VX_URL, {method:'POST', mode:'no-cors', body}); } catch(err){}
+  document.getElementById('leadLink').href = LEAD_RES;
+  f.style.display = 'none';
+  document.getElementById('leadDone').style.display = 'block';
+});
+</script>
+</body>
+</html>
