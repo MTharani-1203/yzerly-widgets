@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attrition-by-Manager Reader | Yzerly</title>
+<style>
+  :root{--ink:#16181d;--ink2:#3a3f47;--muted:#6b7280;--line:#e6e8ec;--card:#fff;--acc:#0d9488;--acc-bg:#e9f7f5;--ok:#0d9488;}
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:transparent;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+  .card{max-width:640px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 26px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);font-weight:800}
+  h2{font-size:22px;letter-spacing:-.01em;margin:6px 0 4px;line-height:1.2}
+  .sub{color:var(--ink2);font-size:14.5px;margin:0 0 16px}
+  .item{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:.12s}
+  .item:hover{border-color:#9fd8d0} .item.on{border-color:var(--acc);background:#f0faf8}
+  .item .box{width:20px;height:20px;border-radius:6px;border:2px solid #cbd0d6;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff}
+  .item.on .box{background:var(--acc);border-color:var(--acc)}
+  .item .tx{font-size:14.5px;color:var(--ink2)} .item.on .tx{color:var(--ink);font-weight:600}
+  .btn{width:100%;border:0;background:var(--acc);color:#fff;font-size:15.5px;font-weight:700;padding:14px;border-radius:11px;cursor:pointer;margin-top:8px}
+  .btn.secondary{background:#fff;color:var(--acc);border:1px solid var(--acc);margin-top:10px}
+  .result{display:none}
+  .score{text-align:center;margin:6px 0 12px} .score .n{font-size:36px;font-weight:800;letter-spacing:-.02em} .score .of{font-size:15px;color:var(--muted)}
+  .meter{height:12px;border-radius:999px;background:#eef0f3;overflow:hidden;margin:12px 0} .meter > i{display:block;height:100%;border-radius:999px;transition:width .4s}
+  .rbox{border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin:6px 0 0;font-size:14.5px;color:var(--ink2);background:#fbfbfc}
+  .rbox .hd{font-size:17px;font-weight:800;margin-bottom:5px} .rbox b{color:var(--ink)}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:8px;cursor:pointer;background:#fff;font-size:15px;color:var(--ink2);font-weight:600}
+  .opt:hover{border-color:var(--acc);background:var(--acc-bg)}
+  .field{margin-bottom:13px} .field label{display:block;font-size:14px;font-weight:600;margin-bottom:6px} .field .hint{font-weight:400;color:var(--muted);font-size:12.5px}
+  .field input[type=number]{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px 13px;font-size:16px;color:var(--ink)}
+  .row2{display:flex;gap:12px;align-items:stretch} .row2>div{flex:1;display:flex;flex-direction:column} .row2>div input{margin-top:auto}
+  .out{background:#16181d;color:#fff;border-radius:14px;padding:20px 22px;margin-top:14px} .out .lab{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#9aa1ac}
+  .out .big{font-size:32px;font-weight:800;letter-spacing:-.02em;margin:2px 0} .out .split{border-top:1px solid #2b2f36;margin-top:14px;padding-top:14px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .out .split .p{font-size:22px;font-weight:800;color:var(--acc)} .out .split .d{font-size:13px;color:#c8ccd2;max-width:58%}
+  .qlist{margin:10px 0 0;padding:0;list-style:none} .qlist li{font-size:14.5px;color:var(--ink2);padding:9px 0;border-top:1px dashed var(--line)} .qlist li b{color:var(--acc)}
+  .cta{background:#16181d;color:#fff;border-radius:13px;padding:20px;margin-top:16px} .cta h3{margin:0 0 6px;font-size:17px} .cta p{margin:0 0 13px;font-size:14px;color:#d7dae0}
+  .brand{margin-top:16px;text-align:center;font-size:12px;color:var(--muted)} .brand b{color:var(--acc)}
+  .note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5}
+  .lead{display:grid;gap:8px;margin-top:6px}
+  .lead input{width:100%;border:1px solid #3a3f47;background:#0f1114;color:#fff;border-radius:8px;padding:10px 12px;font-size:14px}
+  .lead input::placeholder{color:#8b929c}
+  .lead button{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:11px;font-weight:700;font-size:14.5px;cursor:pointer}
+  .leaddone{display:none;font-size:14.5px;color:#d7dae0;margin-top:10px}
+  .leaddone a{color:#fff;font-weight:700}
+  .hp{position:absolute!important;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+  .leaderr{display:none;font-size:13px;font-weight:600;color:#fff;background:#dc2626;border-radius:7px;padding:7px 11px;margin-top:8px}
+  .phonewrap{display:flex;gap:8px}
+  .phonewrap .lsel{flex:0 0 auto;max-width:46%;background:#0f1114;color:#fff;border:1px solid #3a3f47;border-radius:8px;padding:10px 8px;font-size:14px}
+  .phonewrap input{flex:1;min-width:0}
+</style></head>
+<body>
+<div class="card">
+  <div id="quiz">
+    <div class="eyebrow">Yzerly &middot; attrition-by-manager reader</div>
+    <h2>What your attrition data hides about managers</h2>
+    <p class="sub">Tick each statement that is true of how you read attrition today. Aggregate numbers hide the manager-level pattern.</p>
+    <div id="items"></div>
+    <button class="btn" id="see">Show my attrition read</button>
+  </div>
+  <div id="result" class="result">
+    <div class="eyebrow">Your read</div>
+    <div class="score"><span class="n" id="num"></span><span class="of"> / 10</span></div>
+    <div class="meter"><i id="fill"></i></div>
+    <div class="rbox" id="readout"></div>
+    <div class="cta">
+      <h3>Get the attrition-by-manager guide</h3>
+      <p>We will send the guide Yzerly uses to read attrition as a management signal: by manager, over time, regretted versus healthy, and what to do when a pattern appears. No pitch until you have seen your own gaps.</p>
+      <form id="leadForm" class="lead">
+        <input name="lname" placeholder="Name" required>
+        <input name="lemail" type="email" placeholder="Work email" required>
+        <input name="lcompany" placeholder="Company" required>
+        <div class="phonewrap">
+          <select name="lcountry" id="lcountry" class="lsel" aria-label="Country"></select>
+          <input name="lphone" type="tel" inputmode="numeric" placeholder="Mobile number" required>
+        </div>
+        <input name="fax" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button type="submit">Get the guide</button>
+      </form>
+      <div class="leaderr" id="leadErr"></div>
+      <div class="leaddone" id="leadDone">Thanks. Your resource is ready: <a id="leadLink" target="_blank" rel="noopener">Open it &rarr;</a></div>
+    </div>
+    <button class="btn secondary" id="restart">Start over</button>
+    <div class="brand">Built by <b>Yzerly</b> &middot; Diagnose &middot; Design &middot; Deliver &amp; Prove</div>
+  </div>
+</div>
+<script>
+const LEAD_SOURCE   = "blog-48-attrition-managers";
+const LEAD_CAMPAIGN = "Blog 48: Attrition-by-Manager Reader";
+const LEAD_RES      = "https://mtharani-1203.github.io/yzerly-widgets/r47.html";
+const VX_URL = "https://sfastgwebform.api.vettrix.com/webform/record/create/lead";
+const VX_KEY = "AjV16hK6BevBTTARDtLu5HexIbPmGgg/bTFVkE1JcyJEXdPvIjBODOu+YZy4sANi63qs28TY";
+const ITEMS=["We look at attrition by manager, not just overall", "We can see if exits cluster under particular managers", "Exit reasons are tracked by manager, over time", "We separate regretted attrition from healthy turnover", "A manager with a quiet exodus would be visible to us", "We read exit interviews for patterns, not one-offs", "Managers are supported when their attrition signals a problem", "We do not let strong output hide a manager who burns people out", "We act on the pattern early, not after several exits", "We treat attrition as partly a management signal, not only the market"]; const BANDS=[{"min": 8, "color": "#0d9488", "hd": "You read the pattern.", "body": "You look at attrition by manager, separate regretted from healthy, and act on clusters early. That is where the real, fixable story lives. Keep it, because the company-level number will always be calm enough to hide a manager quietly losing people."}, {"min": 4, "color": "#b45309", "hd": "Half the picture.", "body": "You track attrition, but mostly in aggregate, so a manager with a quiet exodus can hide inside a healthy company number. Reading it by manager, over time, is a cheap change that surfaces problems while they are still small."}, {"min": 0, "color": "#c2410c", "hd": "The number hides the story.", "body": "You watch the company attrition rate, which is exactly the level at which a manager burning people out disappears. Strong output covers it, and you lose good people before anyone connects the dots. Read it by manager, and the story changes."}]; const TOT=ITEMS.length;
+const sel=new Set(); const el=document.getElementById('items');
+ITEMS.forEach((m,i)=>{const d=document.createElement('div');d.className='item';d.dataset.i=i;d.innerHTML='<span class="box">&#10003;</span><span class="tx">'+m+'</span>';el.appendChild(d);});
+el.addEventListener('click',e=>{const it=e.target.closest('.item');if(!it)return;const i=it.dataset.i;if(sel.has(i)){sel.delete(i);it.classList.remove('on');}else{sel.add(i);it.classList.add('on');}});
+document.getElementById('see').onclick=()=>{const n=sel.size;document.getElementById('num').textContent=n;
+ let b=BANDS.find(x=>n>=x.min); if(!b)b=BANDS[BANDS.length-1];
+ document.getElementById('fill').style.width=(n/TOT*100)+"%";document.getElementById('fill').style.background=b.color;document.getElementById('num').style.color=b.color;
+ document.getElementById('readout').innerHTML='<div class="hd" style="color:'+b.color+'">'+b.hd+'</div>'+b.body;
+ document.getElementById('quiz').style.display='none';document.getElementById('result').style.display='block';try{window.scrollTo(0,0);}catch(e){}};
+document.getElementById('restart').onclick=()=>{sel.clear();document.querySelectorAll('.item').forEach(i=>i.classList.remove('on'));document.getElementById('result').style.display='none';document.getElementById('quiz').style.display='block';};
+
+var COUNTRIES = {
+  IN:{name:'India',dial:'91',min:10,max:10}, US:{name:'United States',dial:'1',min:10,max:10}, CA:{name:'Canada',dial:'1',min:10,max:10},
+  GB:{name:'United Kingdom',dial:'44',min:9,max:10}, AE:{name:'UAE',dial:'971',min:8,max:9}, SG:{name:'Singapore',dial:'65',min:8,max:8},
+  AU:{name:'Australia',dial:'61',min:9,max:9}, SA:{name:'Saudi Arabia',dial:'966',min:9,max:9}, QA:{name:'Qatar',dial:'974',min:8,max:8},
+  DE:{name:'Germany',dial:'49',min:10,max:11}, FR:{name:'France',dial:'33',min:9,max:9}, NL:{name:'Netherlands',dial:'31',min:9,max:9},
+  ZA:{name:'South Africa',dial:'27',min:9,max:9}, OTHER:{name:'Other',dial:'',min:6,max:15}
+};
+(function(){
+  var s=document.getElementById('lcountry'); if(!s) return;
+  for(var k in COUNTRIES){ var c=COUNTRIES[k]; var o=document.createElement('option'); o.value=k; o.textContent=c.dial?(c.name+' (+'+c.dial+')'):c.name; if(k==='IN')o.selected=true; s.appendChild(o); }
+})();
+document.getElementById('leadForm').addEventListener('submit', function(e){
+  e.preventDefault(); const f=e.target; const err=document.getElementById('leadErr');
+  const show=function(m){ err.textContent=m; err.style.display='block'; }; err.style.display='none';
+  if(f.fax && f.fax.value.trim()!==''){ return; }
+  const FREE=['gmail.com','googlemail.com','yahoo.com','yahoo.in','yahoo.co.in','ymail.com','rocketmail.com','rediffmail.com','rediff.com','hotmail.com','hotmail.co.uk','outlook.com','live.com','msn.com','icloud.com','me.com','mac.com','aol.com','protonmail.com','proton.me','zoho.com','zohomail.com','gmx.com','mail.com','yandex.com','inbox.com'];
+  const name=f.lname.value.trim(); const email=f.lemail.value.trim(); const company=f.lcompany.value.trim();
+  const digits=f.lphone.value.replace(/[^0-9]/g,''); const ckey=f.lcountry?f.lcountry.value:'IN'; const c=COUNTRIES[ckey]||COUNTRIES.OTHER;
+  if(name.length<2 || !/[a-zA-Z]/.test(name)) return show('Please enter your full name.');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return show('Please enter a valid email address.');
+  const domain=email.split('@')[1].toLowerCase(); if(FREE.indexOf(domain)!==-1) return show('Please use your work email, not a personal one.');
+  if(company.length<2) return show('Please enter your company name.');
+  if(digits.length<c.min || digits.length>c.max) return show('Please enter a valid mobile number for '+c.name+'.');
+  const phone=c.dial?('+'+c.dial+digits):('+'+digits);
+  const body=new URLSearchParams(); body.set('webform_key',VX_KEY); body.set('webform_id','1'); body.set('returnURL','https://www.yzerly.com/');
+  body.set('currentUrl',LEAD_SOURCE); body.set('leadlast_name',name); body.set('leademail_id',email); body.set('leadcompany_name',company);
+  body.set('lead_phone',phone); body.set('cflead_campaign_name',LEAD_CAMPAIGN);
+  try{ fetch(VX_URL,{method:'POST',mode:'no-cors',body}); }catch(err2){}
+  document.getElementById('leadLink').href=LEAD_RES; f.style.display='none'; document.getElementById('leadDone').style.display='block';
+});
+</script>
+</body></html>
